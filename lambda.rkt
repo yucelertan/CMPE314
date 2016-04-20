@@ -161,9 +161,7 @@
 (test (free-identifier (parserr '(λ x (λ y z)))) (list 'z))
 (test (free-identifier (parserr '(λ x (λ (λ x y) z)))) (list 'z ))
 
-
 ;; substituter : λ-exp  symbol  λ-exp -> λ-exp
-
 ;; Purpose : Substitution is the act of replacing a name 
 ;; - (in this case, that of the formal parameter) in an expression 
 ;; - (in this case, the body of the function) with another expression 
@@ -186,7 +184,8 @@
     )
   )
     
-
+;; beta-transformer : ((λ x M) N) --> [M:x=N]
+;; beta-transformer : λ-exp -> λ-exp
 ;; Purpose : λ-calculus beta-reduction naive implementation.
 ;; Template :
 ;(define (beta-transform (le : λ-exp)) : λ-exp
@@ -205,11 +204,7 @@
 
 
 ;; General Tests and Examples:
-(define SQUARER
-  (parserr '(λ f (λ x (f (f x))))))
 
-(define CUBER
-  (parserr '(λ f (λ x (f (f (f x)))))))
 
 "EXAMPLE"
 
@@ -219,6 +214,18 @@
 (beta-transformer (parserr '((λ x (λ x y)) k)))
 (beta-transformer (parserr '((λ x (λ y x)) k)))
 (beta-transformer (parserr '((λ x (λ y (x y))) k)))
+(beta-transformer (parse '(((λ x (λ y (y x))) y ) x)))
+      (parse '(x y))
+
+(beta-transformer (parse '((λ x (λ x x)) 'z)))
+      (parse '(λ x x))
+
+(beta-transformer (parse '((λ x (λ y (x y))) y) ))
+      (parse '(λ gensym (y gensym)))
+
+(beta-transformer (parse '((λ x ((λ y z)(λ z x))) z)))
+      (parse (symbol->s-exp 'z))
+
       
 ;Tests
 (test (beta-transformer (parserr '((λ x x) a)))
@@ -235,6 +242,26 @@
       (parserr '(λ y (k y))))
 
 
+(test (beta-transformer (parse '((λ y y) a)))
+      (parse (symbol->s-exp 'a)))
 
+(test (beta-transformer (parse '((λ x c) a)))
+      (parse (symbol->s-exp 'c)))
+
+
+(test (beta-transformer (parse '((λ x (λ y (x y))) k)))
+      (parse '(λ y (k y))))
+
+(test (beta-transformer (parse '(((λ x (λ y (y x))) y ) x)))
+      (parse '(x y)))
+
+(test (beta-transformer (parse '((λ x (λ x x)) 'z)))
+      (parse '(λ x x)))
+
+(test (beta-transformer (parse '((λ x (λ y (x y))) y) ))
+      (parse '(λ gensym (y gensym))))
+
+(test (beta-transformer (parse '((λ x ((λ y z)(λ z x))) z)))
+      (parse (symbol->s-exp 'z)))
 
 
