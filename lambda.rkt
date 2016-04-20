@@ -1,41 +1,6 @@
 
 #lang plai-typed
 
-;Template of Beta Transformation
-
-"(define (substituter [what : λ-exp] [for : symbol] [in : λ-exp]) : λ-exp 
-  (type-case λ-exp in
-    (λ-sym (v) (if (symbol=? v for) 
-                   what
-                   in))
-    (λ-app (l r) (λ-app (substituter what for l)
-                        (substituter what for r)))
-    (λ-def (v p)(λ-def v (substituter what for p)))
-    )
-  )
-
-;; beta-transformer : ((λ x M) N) --> [M:x=N]
-;; beta-transformer : λ-exp -> λ-exp
-
-;; Purpose : λ-calculus beta-reduction naive implementation.
-
-;; Template :
-;(define (beta-transform (le : λ-exp)) : λ-exp
-;  (type-case λ-exp le
-;    (λ-sym (v) ...)
-;    (λ-app (l r)
-;                  ... l
-;                  ... r
-;    ))
-
-(define (beta-transformer (le : λ-exp)) : λ-exp
-  (type-case λ-exp le
-    (λ-sym (v) le) ;; or (λ-sym v)
-    (λ-app (l r) (if (λ-def? l)
-                     (substituter r (λ-def-v l) (λ-def-p l))
-                     (λ-app (beta-transformer l) (beta-transformer r))))
-    (λ-def (v p) (λ-def v (beta-transformer p)))))" 
-
 
 
 ;; λ-expression grammar
