@@ -37,7 +37,13 @@
 (msl-mult (msl-add (msl-num 3) (msl-num 12)) (msl-num 5))
 
 
-
+;;cal msl --> number
+;;calculate some values using a msl expression
+;;examples
+;;(msl-num 9) -> 9
+;;(msl-add (msl-num 7) (msl-num 3) --> 10
+;;(msl-add (msl-add (msl-num -6) (msl-num 4)) (msl-mul (msl-num 2) (msl-num 7)) --> 12
+;;(msl-mult (msl-sub (msl-num 4)) (msl-add (msl-num 3) (msl-num 5))) --> -32
 (define (eval [expr : msl])
   (type-case msl expr
     [msl-num (n) n]
@@ -67,7 +73,7 @@
 (test (eval (msl-mult (msl-add (msl-num 3) (msl-num 4)) (msl-num 5)))  35)
 (test (eval (msl-add (msl-div (msl-num 20) (msl-num 5)) (msl-num 35)))  39)
 
-
+;;s-expression --> msl
 (define (parse [s : s-expression]) : msl
   (cond
     [(s-exp-number? s) (msl-num (s-exp->number s))]
@@ -101,6 +107,8 @@
 ;;-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ;; PARSER FOR PREFIX
+;; parse s-expression -> msl
+;; convert a quoted s expression into the equivalent msl form
 ;; examples
 ;; '7 -> (msl-num 7)
 ;; '(+ 3 4) -> (msl-add (msl-num 3) (msl-num 4))
@@ -128,7 +136,9 @@
 (test (parse-prefix '(+ (- 3 1) 35)) (msl-add (msl-sub (msl-num 3) (msl-num 1)) (msl-num 35)))
 (test (parse-prefix '(- (* 3 4) 6)) (msl-sub (msl-mult (msl-num 3) (msl-num 4)) (msl-num 6)))
 
-;; PARSER FOR INFIX
+;;PARSER FOR INFIX
+;; parse s-expression -> msl
+;; convert a quoted s expression into the equivalent msl form
 ;; examples
 ;; '2 -> (msl-num 2)
 ;; '(7 + 8) -> (msl-add (msl-num 7) (msl-num 8))
@@ -162,6 +172,9 @@
 (test (parse-infix '((10 + 15) + (20 * 2))) (msl-add (msl-add (msl-num 10)(msl-num 15))(msl-mult (msl-num 20)(msl-num 2))))
 (test (parse-infix '((12 + 8) - (5 + 6))) (msl-sub (msl-add (msl-num 12)(msl-num 8))(msl-add (msl-num 5)(msl-num 6))))
 
+
+;; output-reverse msl -> list of s-expression
+;; output the msl as the reverse polish commands needed to evaluate it
 ;; template
 ;;(define (output-reverse-polish [expr : msl])
 ;; (type-case msl expr
@@ -170,7 +183,6 @@
 ;; [msl-mult (lhs rhs)(... (output-reverse-polish lhs)(output-reverse-polish rhs))...]
 ;; [msl-sub (lhs rhs)(... (output-reverse-polish lhs)(output-reverse-polish rhs))...]
 ;; [msl-exp (lhs rhs)(... (output-reverse-polish lhs)(output-reverse-polish rhs))...]
-
 
 
 (define (output-reverse-polish [expr : msl])
@@ -248,6 +260,11 @@
 ;;-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ; SUGAR LANGUAGE
+;;msl -> number
+;;msl -> msl+msl
+;;msl -> msl*msl
+;;msl ->(msl)
+;; op: [+, *, **, -]
 
 (define-type msls
   [num-msls (n : number)]
@@ -306,7 +323,7 @@
 (test (desugar (sub-msls (num-msls 4) (num-msls 2)))
       (msl-sub (msl-num 4) (msl-num 2)))
 
-"------Assignment3-----"
+
 
 ;; expt : number number -> number
 ;; Purpose: To calculate exponentiation of given two number, first number base and second is power.
