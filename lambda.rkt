@@ -59,6 +59,9 @@
 
 ;; parse : s-exp -> λ-exp
 ;; Purpose : To transform given s-expression to corresponding
+;; parserr '(λ x (λ y (y x))) --> (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x))))
+;; parserr (symbol->s-exp 'y) --> (λ-sym 'y)
+;; parserr '((λ x x) y) --> (λ-app (λ-def 'x (λ-sym 'x)) (λ-sym 'y))
 (define (parserr (sexp : s-expression)) : λ-exp
   (cond
     [(s-exp-symbol? sexp)(λ-sym (s-exp->symbol sexp))]
@@ -91,6 +94,9 @@
 
 ;; unparse : λ-exp -> s-exp
 ;; Purpose : To produce concrete syntax from given abstract syntax.
+;; (unparser (λ-sym 'y)) --> (symbol->s-exp 'y)
+;; (unparser (λ-def 'x (λ-sym 'x))) -->  '(λ x x)
+;; (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x))))) --> '(λ x (λ y (y x)))
 (define (unparser (le : λ-exp)) : s-expression
   (type-case λ-exp le
     (λ-sym (v) (symbol->s-exp v))
@@ -124,6 +130,9 @@
 ;; A set represented as a list.
 ;; set-union : (listof symbol) (listof symbol) -> (listof symbol)
 ;; Purpose : To find the union of two sets.
+;; (list 'x) (list 'x)) (list 'x)
+;; (list 'x)(list 'x 'y)) (list 'x 'y)
+;; (list 'x 'y) (list 'x 'y)) (list 'x 'y)
 (define (set-union (s1 : (listof symbol)) (s2 : (listof symbol))) : (listof symbol)
   (foldr (lambda (x y)
            (if (member x y)
@@ -136,10 +145,15 @@
 (test (set-union empty empty) empty)
 (test (set-union empty (list 'x)) (list 'x))
 (test (set-union (list 'x)(list 'x 'y)) (list 'x 'y))
+(test (union (list 'x) (list 'x)) (list 'x))
+(test (union (list 'x 'y) (list 'x 'y) ) (list 'x 'y))
 
 
 ;; set-difference : (listof symbol) (listof symbol) -> (listof symbol)
 ;; Purpose : To find the set difference of two sets.
+;; (list 'x 'y)(list 'x)) -> (list 'y)
+;; (list 'x)(list 'x 'y)) -> (list 'y)
+;; (list 'x) empty) -> (list 'x)
 (define (set-difference (s1 : (listof symbol))  (s2 : (listof symbol))) : (listof symbol)
   (filter (lambda (x)
             (not (member x s2)))
@@ -180,9 +194,7 @@
 (test (free-identifier (parserr '((λ f y)(λ z z)))) (list 'y))
 (test (free-identifier (parserr '(λ x (λ y (y x))))) empty)
 (test (free-identifier (parserr '(λ x (λ y z)))) (list 'z))
-
-
-
+(test (free-identifier (parserr '(λ x (λ (λ x y) z)))) (list 'z ))
 
 
 ;; substituter : λ-exp  symbol  λ-exp -> λ-exp
@@ -237,45 +249,23 @@
 "EXAMPLE"
 
 (beta-transformer (parserr '((λ x x) a)))
-      
-
 (beta-transformer (parserr '((λ x y) a)))
-      
-
 (beta-transformer (parserr '((λ x (a b)) k)))
-      
-
 (beta-transformer (parserr '((λ x (λ x y)) k)))
-      
-
 (beta-transformer (parserr '((λ x (λ y x)) k)))
-      
-
 (beta-transformer (parserr '((λ x (λ y (x y))) k)))
       
-
-
-
-
-
-
 ;Tests
-
 (test (beta-transformer (parserr '((λ x x) a)))
       (parserr (symbol->s-exp 'a)))
-
 (test (beta-transformer (parserr '((λ x y) a)))
       (parserr (symbol->s-exp 'y)))
-
 (test (beta-transformer (parserr '((λ x (a b)) k)))
       (parserr '(a b)))
-
 (test (beta-transformer (parserr '((λ x (λ x y)) k)))
       (parserr '(λ x y)))
-
 (test (beta-transformer (parserr '((λ x (λ y x)) k)))
       (parserr '(λ y k)))
-
 (test (beta-transformer (parserr '((λ x (λ y (x y))) k)))
       (parserr '(λ y (k y))))
 
