@@ -1,32 +1,7 @@
 
 #lang plai-typed
 
-;yucel cicek
-;112200026
 
-"CLASSWORK5 TEST
-(define (interp [e : ExprC] [fds : (listof FunDefC)]) : number
-  (type-case ExprC e
-    [numC (n) n]
-    [idC (_) (error 'interp ""shouldn't get here"")]
-    [appC (f a) (local ([define fd (get-fundef f fds)])
-                  (interp (subst 
-                           (numC (interp a fds)) ;; Make it eager evaluation !!
-                           ;; a - if it is lazy !
-                           (fdC-arg fd)
-                           (fdC-body fd))
-                          fds))]
-    [plusC (l r) (+ (interp l fds) (interp r fds))]
-    [multC (l r) (* (interp l fds) (interp r fds))]))
-
-(test ( interp (parser(fundef fa (x y) (+ x (* 2 y)))  ;Proje 4 classwork kısmı hocam ama ExprC ve parse kodu olmadığı için çalışmayacaktır doğru olup olmadığını kontrol ederseniz çok sevinirim hocam.
-(fa 2 x)))))
-
-(test (interp (fundef fa (x y) (+ x (* 2 y))) 
-(fa y 3))))
-
-
-"
 
 ;define msl
 ;main function
