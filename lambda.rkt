@@ -1,6 +1,8 @@
 
 #lang plai-typed
 
+;Template of Beta Transformation
+
 "(define (substituter [what : λ-exp] [for : symbol] [in : λ-exp]) : λ-exp 
   (type-case λ-exp in
     (λ-sym (v) (if (symbol=? v for) 
@@ -35,7 +37,6 @@
     (λ-def (v p) (λ-def v (beta-transformer p)))))" 
 
 
-"Project7"
 
 ;; λ-expression grammar
 ;; λ-exp -> v
@@ -106,6 +107,16 @@
 (test (unparser (λ-app (λ-def 'x (λ-sym 'x))(λ-def 'y (λ-sym 'y))))
       '((λ x x)(λ y y)))
 (test (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x)))))
+      '(λ x (λ y (y x))))
+  
+  "Example"    
+(unparser (λ-sym 'y))(symbol->s-exp 'y)
+(unparser (λ-def 'x (λ-sym 'x))) '(λ x x)
+(unparser (λ-app (λ-def 'x (λ-sym 'x)) (λ-sym 'y))
+      '((λ x x) y))
+(unparser (λ-app (λ-def 'x (λ-sym 'x))(λ-def 'y (λ-sym 'y)))
+      '((λ x x)(λ y y)))
+(unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x))))
       '(λ x (λ y (y x))))
 
 ;; =========================================================== ;;
