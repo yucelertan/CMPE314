@@ -113,6 +113,13 @@
 (test (union (list 'x) (list 'x)) (list 'x))
 (test (union (list 'x 'y) (list 'x 'y) ) (list 'x 'y))
 
+;; Example:
+(set-union empty empty) 
+(set-union empty (list 'x)) 
+(set-union (list 'x)(list 'x 'y))
+(union (list 'x) (list 'x)) 
+(union (list 'x 'y) (list 'x 'y) )
+
 
 ;; set-difference : (listof symbol) (listof symbol) -> (listof symbol)
 ;; Purpose : To find the set difference of two sets.
