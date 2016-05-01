@@ -73,6 +73,17 @@
 (test (eval (msl-mult (msl-add (msl-num 3) (msl-num 4)) (msl-num 5)))  35)
 (test (eval (msl-add (msl-div (msl-num 20) (msl-num 5)) (msl-num 35)))  39)
 
+
+"Example"
+(eval (msl-num 7))
+(eval (msl-num 5))
+(eval (msl-add (msl-num 3) (msl-num 4)))
+(eval (msl-sub (msl-num 5) (msl-num 2)))
+(eval (msl-div (msl-num 8) (msl-num 1)))
+(eval (msl-add (msl-add (msl-num 3) (msl-num 4)) (msl-num 35)))  
+(eval (msl-mult (msl-add (msl-num 3) (msl-num 4)) (msl-num 5)))  
+(eval (msl-add (msl-div (msl-num 20) (msl-num 5)) (msl-num 35)))
+
 ;;s-expression --> msl
 (define (parse [s : s-expression]) : msl
   (cond
