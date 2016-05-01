@@ -680,15 +680,15 @@ parser (number->s-exp 5)(numC 5)
 
 "Example ->"
 
-(evals '(+ 3 4)) 7
-(evals '(* 3 4)) 12
-(evals '(sqr 4)) 16
-(evals '(neg 4)) -4
+(evals '(+ 3 4)) 
+(evals '(* 3 4)) 
+(evals '(sqr 4)) 
+(evals '(neg 4)) 
 (evals '(/ 3 4)) (/ 3 4) ;; Racket numbers and operations rocks !!
-(evals '(^ 3 4)) 81
-(evals '(- 3 4)) -1
-(evals '(custom 3 4)) 10
-(evals '(factorial 0)) 1
-(evals '(factorial 1)) 1
-(evals '(factorial 5)) 120
-(evals '(factorial 7)) 5040
+(evals '(^ 3 4)) 
+(evals '(- 3 4)) 
+(evals '(custom 3 4)) 
+(evals '(factorial 0)) 
+(evals '(factorial 1)) 
+(evals '(factorial 5)) 
+(evals '(factorial 7)) 
