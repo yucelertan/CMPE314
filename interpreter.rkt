@@ -147,6 +147,17 @@
 (test (parse-prefix '(+ (- 3 1) 35)) (msl-add (msl-sub (msl-num 3) (msl-num 1)) (msl-num 35)))
 (test (parse-prefix '(- (* 3 4) 6)) (msl-sub (msl-mult (msl-num 3) (msl-num 4)) (msl-num 6)))
 
+"Example"
+(parse-prefix '7) 
+(parse-prefix '2) 
+(parse-prefix '(+ 3 4)) 
+(parse-prefix '(- 20 4)) 
+(parse-prefix '(* 2 8)) 
+(parse-prefix '(+ (+ 3 4) 35)) 
+(parse-prefix '(+ (- 3 1) 35)) 
+(parse-prefix '(- (* 3 4) 6)) 
+
+
 ;;PARSER FOR INFIX
 ;; parse s-expression -> msl
 ;; convert a quoted s expression into the equivalent msl form
