@@ -9,3 +9,14 @@ b)
 (define sine­series (cons­stream 0 (integrate­series cosine­series)))
 
 (define cosine­series (cons­stream 1 (integrate­series (sine­series ­1))))
+
+
+#3.60 solution in Racket
+
+(define (mul­series s1 s2)
+
+      (cons­stream (* (stream­car s1) (stream­car s2))
+
+            (mul­streams (scale­stream (stream­cdr s2) (stream­car s1))
+
+                        (mul­series (stream­cdr s1) s2))))
