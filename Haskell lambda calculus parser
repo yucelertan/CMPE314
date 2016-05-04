@@ -1,0 +1,230 @@
+;This program incorporates a parser to convert string to an internal represenation of lambda expression,
+;a pretty printer to reconvert the internal represenation to a formatted string in a human-readable form, 
+;and two evaluation functions (lazy and strict respectively) to reduce a given lambda expression to its normal form.
+
+
+
+;There are grammar.
+module Lci (
+Lambda
+,reader -- String -> Lambda
+,pr -- Lambda -> String
+,byValue -- Lambda -> Lambda
+,byName -- Lambda -> Lambda
+,evalV -- String -> Lambda
+,evalN -- String -> Lambda
+,tryV -- String -> IO ()
+ ,tryN  -- String -> IO ()
+ ) where
+
+
+
+; Parser
+import Text.ParserCombinators.Parsec
+import qualified Text.ParserCombinators.Parsec.Token as T
+import Text.ParserCombinators.Parsec.Language (emptyDef)
+
+;Pretty Printing
+import qualified Text.PrettyPrint as PP
+import Text.PrettyPrint (Doc, (<>), (<+>))
+
+; Environment
+import qualified Data.Map as Map
+import Data.Maybe
+
+
+
+; Data
+
+
+data Lambda = Free String
+| Bound Int
+| Abs String Lambda
+| App Lambda Lambda
+deriving (Eq, Show, Read)
+
+type Env = Map.Map String Lambda
+
+
+
+; Parser
+
+
+abstract :: Int -> String -> Lambda -> Lambda
+abstract i s (Free s') | s == s'  = Bound i
+ | otherwise = Free s'
+abstract _ _ (Bound i) = Bound i
+abstract i s (Abs s' t) = Abs s' (abstract (i+1) s t)
+abstract i s (App t1 t2) = App (abstract i s t1) (abstract i s t2)
+
+;Abstraction over several free variables
+absList :: [String] -> Lambda -> Lambda
+absList xs t = foldr (\x acc -> Abs x (abstract 0 x acc)) t xs
+
+; Application of t to several terms 
+appList :: Lambda -> [Lambda] -> Lambda
+appList = foldl (\acc x -> App acc x)
+
+; Shift a term's non-local indices by i
+shift :: Int -> Int -> Lambda -> Lambda
+shift 0 _ u = u
+shift i d u@(Free s) = u
+shift i d u@(Bound j) = if j >= d then Bound (j+i) else Bound j
+shift i d (Abs s t) = Abs s (shift i (d+1) t)
+shift i d (App t1 t2) = App (shift i d t1) (shift i d t2)
+
+; Substitution for bound variable
+
+subst :: Int -> Lambda -> Lambda -> Lambda
+subst _ _ t@(Free _) = t
+subst i u t@(Bound i') | i' <>
+| i' == i = shift i 0 u
+| otherwise = Bound (i' - 1) -- non-local to t
+subst i u (Abs s t') = Abs s (subst (i+1) u t')
+subst i u (App t1 t2) = App (subst i u t1) (subst i u t2)
+
+-- Lexer & Parser
+lexer :: T.TokenParser ()
+lexer = T.makeTokenParser emptyDef
+
+whiteSpace= T.whiteSpace lexer
+lexeme = T.lexeme lexer
+symbol = T.symbol lexer
+parens = T.parens lexer
+identifier= T.identifier lexer
+
+p_term :: Parser Lambda
+p_term = do{ symbol "^"
+; ids <- many1 identifier
+; symbol "."
+; t <- p_term
+; return $ absList ids t
+}
+ <|> do{ t <- p_atom
+; ts <- many p_atom
+; return $ appList t ts
+ }
+
+p_atom :: Parser Lambda
+p_atom = do{ s <- identifier
+ ; return $ Free s
+}
+ <|> parens p_term
+
+p_top :: Parser Lambda
+p_top = do{ whiteSpace
+; t <- p_term
+; eof
+; return t
+}
+
+reader :: String -> Lambda
+reader input = case (parse p_top "" input) of
+Left err -> error $ show err
+Right x -> x
+
+
+
+; Pretty Printing
+
+
+; Free variables in a term
+vars :: Lambda -> [String]
+vars (Free s) = [s]
+vars (Bound _) = []
+vars (Abs s t) = vars t
+vars (App t u) = vars t ++ vars u
+
+; Rename variable "a" to avoid clashes
+rename bs a = if a `elem` bs then rename bs (a ++ "'") else a
+
+;Remove leading lambdas, return bound variable names
+stripAbs t = strip [] t
+where strip bs (Abs s t) =
+let b = rename (vars t) s
+in strip (b:bs) (subst 0 (Free b) t)
+strip bs u = (reverse bs, u)
+
+pr_term :: Lambda -> Doc
+pr_term (Free s) = PP.text s
+pr_term (Bound i) = PP.text "??UNMATCHED INDEX??"
+pr_term t@(Abs _ _) =
+let (b:bs, u)  = stripAbs t
+paceJoin b z = " " ++ b ++ z
+binder = "^" ++ b ++ (foldr spaceJoin ". " bs)
+in PP.sep [PP.text binder, pr_term u]
+pr_term t = PP.sep (pr_app t)
+
+pr_app (App t u) = pr_app t ++ [PP.nest 1 (pr_atom u)]
+pr_app t = [pr_atom t]
+pr_atom (Free s) = PP.text s
+pr_atom t = PP.nest 1 $ PP.parens $ pr_term t
+
+pr :: Lambda -> String
+pr = PP.render . pr_term
+
+
+
+; Reduction
+
+
+eval (App t1 t2) =
+case eval t1 of
+(Abs a u) -> eval (subst 0 (eval t2) u)
+t  -> App t (eval t2)
+eval t = t
+
+byValue :: Lambda -> Lambda
+byValue t = bodies (eval t)
+where bodies (Abs a t) = Abs a (byValue t)
+bodies (App t u) = App (bodies t) (bodies u)
+bodies t  = t
+
+headNF (Abs a t) = Abs a (headNF t)
+headNF (App t u) =
+case headNF t of
+(Abs a t') -> headNF (subst 0 u t')
+u'  -> App u' u
+headNF t = t
+
+byName :: Lambda -> Lambda
+byName = args . headNF
+where args (Abs a t) = Abs a (args t)
+args (App t u) = App (args t) (byName u)
+args t  = t
+
+
+
+; Standard Environment (Lambda Prelude)
+
+
+; Substitution for free variables from environment
+inst :: Env -> Lambda -> Lambda
+inst env t@(Free s) = fromMaybe t (Map.lookup s env)
+inst env t@(Bound i) = t
+inst env (Abs s t') = Abs s (inst env t')
+inst env (App t1 t2) = App (inst env t1) (inst env t2)
+
+insertEnv :: Env -> (String, String) -> Env
+insertEnv env (a, s) = Map.insert a (reader s) env
+
+stdEnv = foldl insertEnv Map.empty [
+-- booleans
+("true", "^x y. x"), ("false", "^x y. y")
+ ,("if", "^p x y. p x y")
+-- pairs
+ ,("pair", "^x y f. f x y")
+ ,("fst",  "^p. p true"), ("snd", "^p. p false")
+]
+
+
+;Evaluation
+
+evalWith :: (Lambda -> Lambda) -> Env -> String -> Lambda
+evalWith fn env = fn . inst env . reader
+
+evalV = evalWith byValue stdEnv
+evalN = evalWith byName stdEnv
+
+tryV = putStrLn . pr . evalV
+tryN = putStrLn . pr . evalN
