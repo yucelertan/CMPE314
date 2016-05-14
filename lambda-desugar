@@ -69,6 +69,11 @@
     [lambda-sugared-def (bound body) (lambda-def bound (desugar body))]
     [lambda-sugared-apply (lhs rhs) (lambda-apply (desugar lhs) (desugar rhs))]
     [lambda-sugared-LET (let-bindings let-body) (foldr desugar-let (desugar let-body) let-bindings)]))
+;Example
+  (unparse (desugar (parse-sugared '(LET ((a b)) x)))) '((λ a x) b)
+  (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a ((λ c x) d)) b)
+  (unparse (desugar (parse-sugared '(LET ((p q) (ADD (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) (λ p ((ADD p)p))))))
+      '((λ p ((λ ADD (λ p ((ADD p) p))) (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) q)
 
 (test (unparse (desugar (parse-sugared '(LET ((a b)) x)))) '((λ a x) b))
 (test (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a ((λ c x) d)) b))
