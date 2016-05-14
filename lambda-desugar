@@ -1,6 +1,17 @@
 #lang plai-typed
+;yücel çiçek
+;seçil yıldırgı
+;eda karabiber
 
 
+;Grammar for lambda-desugar
+;Λ → v
+;Λ → ( λ v Λ )
+;Λ → ( Λ Λ )
+;Λ → (L Λ)
+;L → (LET (LL) Λ)
+;LL → (v Λ)
+;LL → (v Λ) LL
 
 
 (define-type lambda
