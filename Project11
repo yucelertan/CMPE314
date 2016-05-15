@@ -1,1 +1,67 @@
 
+#lang plai-typed
+;yücel çiçek
+;seçil yıldırgı
+;eda karabiber
+
+
+;Grammar for lambda-desugar
+;Λ → v
+;Λ → ( λ v Λ )
+;Λ → ( Λ Λ )
+;Λ → (L Λ)
+;L → (LET (LL) Λ)
+;LL → (v Λ)
+;LL → (v Λ) LL
+
+;TEMPLATE
+;(define-type lambda
+;  [lambda-id (id : symbol)]
+;  [lambda-def (bound : symbol) (body : lambda)]
+; ...
+;(define-type lambda-sugared
+;  [lambda-sugared-id (id : symbol)]
+;  [lambda-sugared-def (bound : symbol) (body : lambda-sugared)]
+; ...
+
+;We have to construct a let-binding and to use parse sugared.
+;template
+;(define-type let-binding
+;  [let-binding-data (let-bound : symbol) (let-value : lambda-sugared)])
+;(define (parse-let-binding [s : s-expression]) : let-binding
+
+
+ 
+;; parse-sugared s-expression -> lambda-sugared
+;; convert a quoted s expression into the equivalent lambda-sugared form
+;; examples
+;(define (parse-sugared [s : s-expression]) : lambda-sugared
+; (cond
+; [(s-exp-symbol? s) (lambda-sugared-id (s-exp->symbol s))]
+;[(s-exp-list? s)
+;(let ([sl (s-exp->list s)])
+; (cond
+;...
+
+"Unparse"
+;Template
+;convert s-expression to unparse method with parser
+;unparse lambda -> s-expression 
+;(define (unparse [expr : lambda]) : s-expression 
+ ;(type-case lambda expr
+    ;[lambda-id (id) (symbol->s-exp id)]
+    
+;[lambda-def (bound body) (list->s-exp (list (symbol->s-exp 'λ) ...
+
+
+
+;desugar let template
+;(define (desugar-let [lb : let-binding] [body : lambda]) : lambda
+ 
+;sugared exp convert to lambda-sugared 
+;(define (desugar [sugared-expr : lambda-sugared]) : lambda
+
+
+
+;test
+;(test (unparse (desugar (parse-sugared '(LET...
