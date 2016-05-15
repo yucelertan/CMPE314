@@ -13,6 +13,18 @@
 ;LL → (v Λ)
 ;LL → (v Λ) LL
 
+;TEMPLATE
+;(define-type lambda
+;  [lambda-id (id : symbol)]
+;  [lambda-def (bound : symbol) (body : lambda)]
+; ...
+;(define-type lambda-sugared
+;  [lambda-sugared-id (id : symbol)]
+;  [lambda-sugared-def (bound : symbol) (body : lambda-sugared)]
+; ...
+
+;This code take a paramater and to describe identification,definition and application.
+;And also describe lambda-sugared with LET.
 
 (define-type lambda
   [lambda-id (id : symbol)]
@@ -29,6 +41,10 @@
 
 (define-type let-binding
   [let-binding-data (let-bound : symbol) (let-value : lambda-sugared)])
+
+
+;Parse with let-binding and translate first binding to second binding with parse-sugared.
+
 
 (define (parse-let-binding [s : s-expression]) : let-binding
   (let ((let-binding (s-exp->list s)))
@@ -69,13 +85,17 @@
     [lambda-sugared-def (bound body) (lambda-def bound (desugar body))]
     [lambda-sugared-apply (lhs rhs) (lambda-apply (desugar lhs) (desugar rhs))]
     [lambda-sugared-LET (let-bindings let-body) (foldr desugar-let (desugar let-body) let-bindings)]))
+
 ;Example
   (unparse (desugar (parse-sugared '(LET ((a b)) x)))) '((λ a x) b)
   (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a ((λ c x) d)) b)
   (unparse (desugar (parse-sugared '(LET ((p q) (ADD (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) (λ p ((ADD p)p))))))
       '((λ p ((λ ADD (λ p ((ADD p) p))) (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) q)
+  (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a (d)) b)
+;tests
 
 (test (unparse (desugar (parse-sugared '(LET ((a b)) x)))) '((λ a x) b))
 (test (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a ((λ c x) d)) b))
+(test (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a (d)) b))
 (test (unparse (desugar (parse-sugared '(LET ((p q) (ADD (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) (λ p ((ADD p)p))))))
       '((λ p ((λ ADD (λ p ((ADD p) p))) (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) q))
