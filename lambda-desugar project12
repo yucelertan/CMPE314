@@ -44,8 +44,7 @@
 
 
 ;Parse with let-binding and translate first binding to second binding with parse-sugared.
-
-
+;parse-let-binding s-expression -> let-binding
 (define (parse-let-binding [s : s-expression]) : let-binding
   (let ((let-binding (s-exp->list s)))
     (let-binding-data (s-exp->symbol (first let-binding)) (parse-sugared (second let-binding)))))
@@ -99,6 +98,7 @@
 (test (unparse (desugar (parse-sugared '(LET ((a b) (c d)) x)))) '((λ a (d)) b))
 (test (unparse (desugar (parse-sugared '(LET ((p q) (ADD (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) (λ p ((ADD p)p))))))
       '((λ p ((λ ADD (λ p ((ADD p) p))) (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) q))
+   
       
 ;  ______________________________________________________________________________________________________
 ;Beta leftmost
