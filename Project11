@@ -94,6 +94,19 @@
 
 ;; parse : s-exp -> λ-exp
 ;; Purpose : To transform given s-expression to corresponding
+;Template
+;Parser
+;;(define (parserr (sexp : s-expression)) : λ-exp
+;;  (cond
+;;    [(s-exp-symbol? sexp)(λ-sym (s-exp->symbol sexp))]
+;;    [(s-exp-list? sexp)
+;;    (let ([sexp-list (s-exp->list sexp)])
+;;       ...
+;;         [else (error 'parserr "Not valid length λ-exp")]
+;;         ))]
+;;    [else (error 'parserr "Not valid λ-exp")]
+;;    ))
+
 (define (parserr (sexp : s-expression)) : λ-exp
   (cond
     [(s-exp-symbol? sexp)(λ-sym (s-exp->symbol sexp))]
@@ -130,6 +143,15 @@
 
 ;; unparse : λ-exp -> s-exp
 ;; Purpose : To produce concrete syntax from given abstract syntax.
+;Template
+;Unparser
+;;(define (unparser (le : λ-exp)) : s-expression
+;;  (type-case λ-exp le
+;;    (λ-sym (v) (symbol->s-exp v))
+;;    ...
+;;                 (list (symbol->s-exp 'λ)(symbol->s-exp v)(unparser p))))
+;;    ))
+
 (define (unparser (le : λ-exp)) : s-expression
   (type-case λ-exp le
     (λ-sym (v) (symbol->s-exp v))
@@ -147,6 +169,8 @@
       '((λ x x)(λ y y)))
 (test (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x)))))
       '(λ x (λ y (y x))))
+(test (unparser (λ-app (λ-sym 'x)(λ-sym 'y))) '(x y))
+(test (unparser (λ-def 'y (λ-app (λ-sym 'y)(λ-sym 'y)))) '(λ y (y y)))
 
 ;; =========================================================== ;;
 
