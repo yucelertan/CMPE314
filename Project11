@@ -149,13 +149,6 @@
 
 ;; Test:
 (test (unparser (λ-sym 'y))(symbol->s-exp 'y))
-(test (unparser (λ-def 'x (λ-sym 'x))) '(λ x x))
-(test (unparser (λ-app (λ-def 'x (λ-sym 'x)) (λ-sym 'y)))
-      '((λ x x) y))
-(test (unparser (λ-app (λ-def 'x (λ-sym 'x))(λ-def 'y (λ-sym 'y))))
-      '((λ x x)(λ y y)))
-(test (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x)))))
-      '(λ x (λ y (y x))))
 (test (unparser (λ-app (λ-sym 'x)(λ-sym 'y))) '(x y))
 (test (unparser (λ-def 'y (λ-app (λ-sym 'y)(λ-sym 'y)))) '(λ y (y y)))
 
@@ -164,6 +157,15 @@
 ;; A set represented as a list.
 ;; set-union : (listof symbol) (listof symbol) -> (listof symbol)
 ;; Purpose : To find the union of two sets.
+
+;Template
+;Set-Union
+;;(define (set-union (s1 : (listof symbol)) (s2 : (listof symbol))) : (listof symbol)
+;;  (foldr (lambda (x y)
+;;           (if ...y
+               (cons x y))) 
+         ... (append s1 s2)))
+
 (define (set-union (s1 : (listof symbol)) (s2 : (listof symbol))) : (listof symbol)
   (foldr (lambda (x y)
            (if (member x y)
@@ -180,6 +182,14 @@
 
 ;; set-difference : (listof symbol) (listof symbol) -> (listof symbol)
 ;; Purpose : To find the set difference of two sets.
+
+;Template
+;Set-Difference
+;;(define (set-difference (s1 : (listof symbol))  (s2 : (listof symbol))) : (listof symbol)
+;;  (filter (lambda (x)
+;;            (... (...  s2)))
+;;          s1))
+
 (define (set-difference (s1 : (listof symbol))  (s2 : (listof symbol))) : (listof symbol)
   (filter (lambda (x)
             (not (member x s2)))
@@ -189,7 +199,6 @@
 (test (set-difference empty (list 'x)) empty)
 (test (set-difference (list 'x) empty) (list 'x))
 (test (set-difference (list 'x)(list 'x 'y)) empty)
-(test (set-difference (list 'x 'y)(list 'x))(list 'y))
 
 
 
