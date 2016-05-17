@@ -122,6 +122,10 @@
       (λ-app (λ-def 'x (λ-sym 'x))(λ-def 'y (λ-sym 'y))))
 (test (parserr '(λ x (λ y (y x))))
       (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x)))))
+(test (parserr '(x y)) (λ-app (λ-sym 'x)(λ-sym 'y)))
+(test (parserr '(λ x (x y))) (λ-def 'x (λ-app (λ-sym 'x)(λ-sym 'y))))
+(test (parserr '(λ y (λ (x x)))) (λ-def 'y (λ-def 'x (λ-sym 'x))))
+
 
 
 ;; unparse : λ-exp -> s-exp
