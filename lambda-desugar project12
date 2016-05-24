@@ -187,7 +187,7 @@
 (test (unparser (λ-def 'x (λ-def 'x (λ-def 'y (λ-sym 'x))))) '(λ x (λ x (λ y x))))
 (test (unparser (λ-def 'y (λ-app (λ-sym 'x)(λ-sym 'x)))) '(λ y (x x)))
 (test (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'y))))) '(λ x (λ y (y y))))
-(test (unparser (λ-app (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'y))) (λ-sym x))) '((λ x (y y)) x))
+(test (unparser (λ-app (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'y))) (λ-sym 'x))) '((λ x (y y)) x))
 
 
 
