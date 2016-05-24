@@ -99,6 +99,8 @@
       '((λ p ((λ ADD (λ p ((ADD p) p))) (λ n (λ m (λ f (λ x ((m f) ((n f) x)))))))) q))
 (test (unparse (desugar (parse-sugared '(LET ((k m)) x)))) '((λ k x) m))
 (test (unparse (desugar (parse-sugared '(LET ((k m)) (n l) x)))) '((λ k ((λ n x) l)) m))
+(test (unparse (desugar (parse-sugared '(LET ((c b)) c)) '((λ a x) b))
+(test (unparse (desugar (parse-sugared '((λ z (x)) y)))) '(LET ((w e) (k l)) o)
 
    
       
@@ -175,6 +177,7 @@
 ;; Test:
 (test (unparser (λ-sym 'y))(symbol->s-exp 'y))
 (test (unparser (λ-def 'x (λ-sym 'x))) '(λ x x))
+(test (unparser (λ-def 'y (λ-app (λ-sym 'a)(λ-sym 'a)))) '(λ y (a a)) 
 (test (unparser (λ-app (λ-def 'x (λ-sym 'x)) (λ-sym 'y)))
       '((λ x x) y))
 (test (unparser (λ-app (λ-def 'x (λ-sym 'x))(λ-def 'y (λ-sym 'y))))
@@ -185,6 +188,7 @@
 (test (unparser (λ-def 'y (λ-app (λ-sym 'x)(λ-sym 'x)))) '(λ y (x x)))
 (test (unparser (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'y))))) '(λ x (λ y (y y))))
 (test (unparser (λ-app (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'y))) (λ-sym x))) '((λ x (y y)) x))
+
 
 
 ;; =========================================================== ;;
