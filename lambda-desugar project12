@@ -158,10 +158,10 @@
 (test (parserr '(λ x (λ y (y x))))
       (λ-def 'x (λ-def 'y (λ-app (λ-sym 'y) (λ-sym 'x)))))
 (test (parserr '(λ x y)) (λ-def 'x (λ-sym 'y)))
-(test (parserr '(λ x (λ x (y y)))) (λ-def 'x (λ-def x' (λ-app (λ-sym 'y)(λ-sym 'x)))))
+(test (parserr '(λ x (λ x (y y)))) (λ-def 'x (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'x)))))
 (test (parserr '(λ y (x x))) (λ-def 'y (λ-app (λ-sym 'x)(λ-sym 'x))))
 (test (parserr '(λ x (λ x (λ y x)))) (λ-def 'x (λ-def 'x (λ-def 'y (λ-sym 'x)))))
-(test (parserr '((λ x (y y)) x)) (λ-app (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'y))) (λ-sym x)))
+(test (parserr '((λ x (y y)) x)) (λ-app (λ-def 'x (λ-app (λ-sym 'y)(λ-sym 'y))) (λ-sym 'x)))
 
 
 ;; unparse : λ-exp -> s-exp
@@ -253,9 +253,9 @@
 (test (free-identifier (parserr '(λ x (λ y (y x))))) empty)
 (test (free-identifier (parserr '(λ x (λ y z)))) (list 'z))
 (test (free-identifier (parserr '(λ x (λ y (λ x x))))) empty)
-(test (free-identifier (parserr '(x x) (list 'x))
+(test (free-identifier (parserr '(x x))) (list 'x))
 (test (free-identifier (parserr '((λ x (y y))(λ y (x x))))) (list 'x 'y))
-()
+
 
 
 
